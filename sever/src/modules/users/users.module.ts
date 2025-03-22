@@ -26,6 +26,10 @@ export class UsersModule {
       "/",
       this.usersController.createUser.bind(this.usersController)
     );
+    router.post(
+      "/login",
+      this.usersController.loginUser.bind(this.usersController)
+    );
     return router;
   }
 }
