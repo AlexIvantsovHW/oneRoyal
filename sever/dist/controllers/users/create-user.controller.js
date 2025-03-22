@@ -36,7 +36,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.createUserController = void 0;
 const i = __importStar(require("../imports"));
 const createUserController = async (pool, req, res) => {
-    const { email, password, user_name } = req.body;
+    const { email, password, username } = req.body;
     if (!i.emailValidator(email)) {
         return res
             .status(404)
@@ -47,7 +47,7 @@ const createUserController = async (pool, req, res) => {
             message: "password is empty or it includes wrong format (min. lenght 6 simbols, special symbols,a-zA-Z0-9 letters)",
         });
     }
-    else if (!i.usernameValidator(user_name)) {
+    else if (!i.usernameValidator(username)) {
         return res.status(404).json({
             message: " Username is empty or it includes wrong format (min. lenght 3 symbols) ",
         });
@@ -56,11 +56,11 @@ const createUserController = async (pool, req, res) => {
     try {
         // check existing username
         const userQuery = await pool.query(`
-    SELECT user_name FROM users WHERE user_name='${user_name}'
+    SELECT username FROM users WHERE username='${username}'
     `);
         if (userQuery.rowCount > 0) {
             return res.status(200).send({
-                message: `${user_name} is already exist! please choose another one name!`,
+                message: `${username} is already exist! please choose another one name!`,
             });
         }
         // check existing email
@@ -86,7 +86,7 @@ const createUserController = async (pool, req, res) => {
         const saltRounds = 10;
         const hashedPassword = await i.bcrypt.hash(password, saltRounds);
         await pool.query("BEGIN");
-        const createUserQuery = await pool.query(`INSERT INTO users (email, password, user_name,role) VALUES ($1, $2, $3,false) RETURNING id`, [email, hashedPassword, user_name]);
+        const createUserQuery = await pool.query(`INSERT INTO users (email, password, username) VALUES ($1, $2, $3) RETURNING id`, [email, hashedPassword, username]);
         const result = createUserQuery.rows[0];
         if (!result) {
             console.log("User creation failed.");
@@ -96,11 +96,9 @@ const createUserController = async (pool, req, res) => {
         }
         await pool.query("COMMIT");
         console.log("---------create a new user  end request---------");
-        return res
-            .status(201)
-            .json({
+        return res.status(201).json({
             status: 201,
-            message: `User with name ${user_name} is created successfully! user id is ${result.id}`,
+            message: `User with name ${username} is created successfully!`,
         });
     }
     catch (error) {
