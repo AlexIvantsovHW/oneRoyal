@@ -1,7 +1,7 @@
-import "reflect-metadata";
-import { DataSource } from "typeorm";
-import dotenv from "dotenv";
-import { User } from "../modules/users/entities/user.entity";
+require("reflect-metadata");
+const { DataSource } = require("typeorm");
+const dotenv = require("dotenv");
+const { User } = require("../modules/users/entities/user.entity");
 
 dotenv.config();
 
