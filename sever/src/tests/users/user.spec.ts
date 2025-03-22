@@ -1,5 +1,5 @@
 const request = require("supertest");
-const app = require("../../index");
+const { app } = require("../../app");
 import { Server } from "http";
 let server: Server;
 
@@ -13,8 +13,8 @@ describe("User API", () => {
   });
 
   test("GET /users - should return a list of users", async () => {
-    const response = await request(app).get("/users");
-    expect(response.status).toBe(200);
+    const response = await request(app).get("/users/");
+    expect(response.status).toBe(201);
     expect(Array.isArray(response.body)).toBe(true);
     expect(response.body[0]).toEqual(
       expect.objectContaining({
@@ -32,11 +32,11 @@ describe("User API", () => {
       username: "testUser",
     };
 
-    const response = await request(app)
-      .post("/users/create")
-      .send(existingUser);
+    const response = await request(app).post("/users/").send(existingUser);
 
-    expect(response.status).toBe(200);
-    expect(response.body.message).toMatch(/testUser is already exist/);
+    expect(response.status).toBe(201);
+    expect(response.body.message).toMatch(
+      /User testUser was successfully created!/
+    );
   });
 });
