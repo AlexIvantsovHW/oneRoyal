@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Client Portal</title>
+    <script src="https://s3.tradingview.com/tv.js"></script>
+    <style>
+      :root {
+        --bg-color: #f5f5f5;
+        --text-color: #333;
+        --accent-color: #007bff;
+        --button-bg: #007bff;
+        --button-text: #fff;
+        --nav-bg: #fff;
+        --nav-text: #333;
+      }
+      [data-theme="dark"] {
+        --bg-color: #121212;
+        --text-color: #fff;
+        --nav-bg: #1e1e1e;
+        --nav-text: #fff;
+        --button-bg: #444;
+        --button-text: #fff;
+      }
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        display: flex;
+        height: 100vh;
+        flex-direction: column;
+      }
+      nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 20px;
+        background-color: var(--nav-bg);
+        color: var(--nav-text);
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      aside {
+        width: 200px;
+        background: var(--nav-bg);
+        padding: 10px;
+        box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1);
+      }
+      main {
+        flex-grow: 1;
+        padding: 20px;
+      }
+      button {
+        background-color: var(--button-bg);
+        color: var(--button-text);
+        border: none;
+        padding: 10px;
+        cursor: pointer;
+        margin: 5px;
+        border-radius: 5px;
+      }
+      button:hover {
+        opacity: 0.8;
+      }
+      input {
+        display: block;
+        width: 90%;
+        padding: 8px;
+        margin: 5px auto;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      #app {
+        display: flex;
+        flex: 1;
+      }
+      #content {
+        flex-grow: 1;
+        padding: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+
+    <script>
+      let isAuthenticated = localStorage.getItem("authenticated");
+      const app = document.getElementById("app");
+
+      const renderLogin = () => {
+        app.innerHTML = `
+                <div style="text-align: center; width: 100%; max-width: 400px; margin: auto;">
+                    <h2>Login</h2>
+                    <input id="login" placeholder="Login">
+                    <input id="password" type="password" placeholder="Password">
+                    <button id="loginBtn">Login</button>
+                </div>
+            `;
+        document.getElementById("loginBtn").addEventListener("click", () => {
+          let login = document.getElementById("login").value;
+          let password = document.getElementById("password").value;
+          if (login === "testLogin" && password === "testPassword") {
+            localStorage.setItem("authenticated", "true");
+            renderPortal();
+          } else {
+            alert("Invalid credentials");
+          }
+        });
+      };
+
+      const renderPortal = () => {
+        app.innerHTML = `
+                <nav>
+                    <span>OneRoyal</span>
+                    <span id="clientName">Client Name</span>
+                    <button id="logout">Log Out</button>
+                </nav>
+                <div id="app">
+                    <aside>
+                        <button id="profile">Profile</button>
+                        <button id="accounts">Accounts</button>
+                        <button id="terminal">Terminal</button>
+                    </aside>
+                    <main id="content">Welcome</main>
+                </div>
+            `;
+        document.getElementById("logout").addEventListener("click", () => {
+          localStorage.removeItem("authenticated");
+          renderLogin();
+        });
+        document
+          .getElementById("terminal")
+          .addEventListener("click", loadTradingViewChart);
+        document
+          .getElementById("accounts")
+          .addEventListener("click", loadAccounts);
+        document
+          .getElementById("profile")
+          .addEventListener("click", loadProfile);
+      };
+
+      const loadTradingViewChart = () => {
+        document.getElementById("content").innerHTML =
+          '<div id="tradingview-chart"></div>';
+        new TradingView.widget({
+          container_id: "tradingview-chart",
+          width: "100%",
+          height: "500",
+          symbol: "NASDAQ:AAPL",
+          interval: "D",
+          timezone: "Etc/UTC",
+          theme: "light",
+          style: "1",
+          locale: "en",
+          toolbar_bg: "#f1f3f6",
+          enable_publishing: false,
+          hide_side_toolbar: false,
+          allow_symbol_change: true,
+          studies: ["MACD@tv-basicstudies", "RSI@tv-basicstudies"],
+        });
+      };
+
+      const loadAccounts = () => {
+        const accounts = [
+          { id: "ACC12345", balance: 5000, currency: "USD" },
+          { id: "ACC67890", balance: 10000, currency: "EUR" },
+        ];
+        let content = "<h2>Accounts</h2><div>";
+        accounts.forEach((account) => {
+          content += `<p><strong>ID:</strong> ${account.id} | <strong>Balance:</strong> ${account.balance} ${account.currency}</p>`;
+        });
+        content += "</div>";
+        document.getElementById("content").innerHTML = content;
+      };
+
+      const loadProfile = () => {
+        const profile = {
+          name: "John Doe",
+          email: "johndoe@example.com",
+          phone: "+1 234 567 890",
+          address: "123 Main St, Anytown, USA",
+        };
+        let content = "<h2>Profile</h2><div>";
+        content += `<p><strong>Name:</strong> ${profile.name}</p>`;
+        content += `<p><strong>Email:</strong> ${profile.email}</p>`;
+        content += `<p><strong>Phone:</strong> ${profile.phone}</p>`;
+        content += `<p><strong>Address:</strong> ${profile.address}</p>`;
+        content += "</div>";
+        document.getElementById("content").innerHTML = content;
+      };
+
+      isAuthenticated ? renderPortal() : renderLogin();
+    </script>
+  </body>
+</html>
