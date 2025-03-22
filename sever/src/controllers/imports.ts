@@ -1,16 +1,6 @@
 import { Pool } from "pg";
 import { Request, Response } from "express";
 import {
-  Country,
-  Casino,
-  CountryCode,
-  Logs,
-  Bonus,
-  Feature,
-  User,
-  Payments,
-} from "../models/types";
-import {
   passwordValidator,
   usernameValidator,
   emailValidator,
@@ -26,6 +16,4 @@ export {
   emailValidator,
   bcrypt,
   jwt,
-  Feature,
 };
-export type { Country, Casino, CountryCode, Logs, Bonus, User, Payments };
