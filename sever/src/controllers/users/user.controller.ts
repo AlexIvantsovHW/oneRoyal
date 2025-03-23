@@ -80,13 +80,11 @@ export class UsersController {
   loginUser = async (req: Request, res: Response) => {
     try {
       const { email, password } = req.body;
-
-      if (!email || !password) {
+      if (!email && !password) {
         return res
           .status(400)
           .json({ message: "Email and password are required" });
       }
-
       const user = await this.usersService.findByEmail(email);
 
       if (!user) {
