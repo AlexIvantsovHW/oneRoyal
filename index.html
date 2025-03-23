@@ -46,6 +46,34 @@
         padding: 10px;
         box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1);
       }
+
+      header {
+        display: none;
+        flex-direction: column;
+        justify-content: start;
+        align-items: center;
+        width: 100%;
+        background: var(--nav-bg);
+        padding: 10px;
+        box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1);
+      }
+
+      @media (max-width: 640px) {
+        #app {
+          flex-direction: column;
+        }
+        #app img {
+          display: none;
+        }
+        aside {
+          flex-direction: row;
+          flex-wrap: wrap;
+          min-height: 100px;
+          height: fit-content;
+          width: 100%;
+        }
+      }
+
       main {
         flex-grow: 1;
         padding: 20px;
@@ -80,7 +108,7 @@
       #content {
         flex-grow: 1;
         padding: 20px;
-        width: "100%";
+        width: 100%;
         text-align: center;
         font-size: x-large;
         display: flex;
@@ -119,6 +147,43 @@
         height: auto;
         margin: 0 auto 20px;
       }
+      #tradingview-chart-container {
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      #tradingview-chart {
+        max-width: 100%;
+        width: 100%;
+        height: 100%;
+      }
+
+      @media (max-width: 768px) {
+        #tradingview-chart-container {
+          overflow: scroll;
+          max-width: 100%;
+          max-height: 100%;
+        }
+        #tradingview-chart {
+          width: 1000px;
+          height: auto;
+        }
+      }
+
+      @media (max-width: 480px) {
+        #tradingview-chart-container {
+          overflow: scroll;
+        }
+        #tradingview-chart {
+          width: 800px;
+          height: 400px;
+        }
+      }
+
       @media (max-width: 500px) {
         .login-container {
           width: 75%;
@@ -306,22 +371,21 @@
 
       const renderPortal = () => {
         app.innerHTML = `
-  
-          <div id="app">
-            <aside>
-             <img src='https://fxnewsgroup.com/wp-content/uploads/2020/10/Royal-Financial-Trading-1024x403-978x400.jpg' class="logo"/>
-              <button id="profile">Profile</button>
-              <button id="accounts">Accounts</button>
-              <button id="terminal">Terminal</button>
-               <button id="logout">Log Out</button>
-            </aside>
-            <main id="content">
-              <h1>Welcome to</h1>
-                <img src='https://fxnewsgroup.com/wp-content/uploads/2020/10/Royal-Financial-Trading-1024x403-978x400.jpg' class="logo"/>
-              </main>
-          </div>
-        `;
-
+    <div id="app">
+      <aside>
+        <img src="https://fxnewsgroup.com/wp-content/uploads/2020/10/Royal-Financial-Trading-1024x403-978x400.jpg" class="logo" />
+        <button id="profile">Profile</button>
+        <button id="accounts">Accounts</button>
+        <button id="terminal">Terminal</button>
+        <button id="logout">Log Out</button>
+      </aside>
+     
+      <main id="content">
+        <h1>Welcome to</h1>
+        <img src="https://fxnewsgroup.com/wp-content/uploads/2020/10/Royal-Financial-Trading-1024x403-978x400.jpg" class="logo" />
+      </main>
+    </div>
+  `;
         document.getElementById("logout").addEventListener("click", () => {
           localStorage.removeItem("authToken");
           renderLogin();
@@ -340,11 +404,14 @@
 
       const loadTradingViewChart = () => {
         document.getElementById("content").innerHTML =
-          '<div id="tradingview-chart"><h1>Trading terminal</h1></div>';
+          '<div id="tradingview-chart-container"><div id="tradingview-chart"><h1>Trading Terminal</h1></div></div>';
+
+        // Получаем высоту экрана для адаптации
+        const chartHeight = window.innerHeight * 0.6; // 60% высоты экрана
+
         new TradingView.widget({
           container_id: "tradingview-chart",
-
-          height: "500",
+          height: chartHeight, // Динамическая высота
           symbol: "NASDAQ:AAPL",
           interval: "D",
           timezone: "Etc/UTC",
