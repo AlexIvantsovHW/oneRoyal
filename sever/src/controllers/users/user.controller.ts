@@ -109,6 +109,7 @@ export class UsersController {
       return res.status(200).json({
         message: "Login successful",
         token,
+        user_id: user.id,
       });
     } catch (error) {
       console.error("Error logging in:", error);

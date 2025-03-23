@@ -7,21 +7,16 @@
     <script src="https://s3.tradingview.com/tv.js"></script>
     <style>
       :root {
-        --bg-color: #f5f5f5;
-        --text-color: #333;
-        --accent-color: #007bff;
-        --button-bg: #007bff;
-        --button-text: #fff;
-        --nav-bg: #fff;
-        --nav-text: #333;
-      }
-      [data-theme="dark"] {
         --bg-color: #121212;
         --text-color: #fff;
-        --nav-bg: #1e1e1e;
-        --nav-text: #fff;
+        --accent-color: #007bff;
         --button-bg: #444;
         --button-text: #fff;
+        --nav-bg: #1e1e1e;
+        --nav-text: #fff;
+        --input-bg: #333;
+        --input-border: #666;
+        --input-text: #fff;
       }
       body {
         margin: 0;
@@ -29,8 +24,8 @@
         background-color: var(--bg-color);
         color: var(--text-color);
         display: flex;
-        height: 100vh;
         flex-direction: column;
+        height: 100vh;
       }
       nav {
         display: flex;
@@ -42,6 +37,10 @@
         box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
       }
       aside {
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+        align-items: center;
         width: 200px;
         background: var(--nav-bg);
         padding: 10px;
@@ -59,6 +58,7 @@
         cursor: pointer;
         margin: 5px;
         border-radius: 5px;
+        width: 100%;
       }
       button:hover {
         opacity: 0.8;
@@ -68,8 +68,10 @@
         width: 90%;
         padding: 8px;
         margin: 5px auto;
-        border: 1px solid #ccc;
+        border: 1px solid var(--input-border);
         border-radius: 5px;
+        background-color: var(--input-bg);
+        color: var(--input-text);
       }
       #app {
         display: flex;
@@ -79,70 +81,146 @@
         flex-grow: 1;
         padding: 20px;
       }
+      .login-container {
+        text-align: center;
+        width: 100%;
+        max-width: 400px;
+        margin: auto;
+      }
+      .logo {
+        display: block;
+        max-width: 100%;
+        width: 100%;
+        max-width: 500px;
+        height: auto;
+        margin: 0 auto 20px;
+      }
+      @media (max-width: 500px) {
+        .login-container {
+          width: 75%;
+        }
+      }
+      .loader {
+        border: 4px solid rgba(0, 0, 0, 0.1);
+        border-left-color: #fff;
+        border-radius: 50%;
+        width: 30px;
+        height: 30px;
+        animation: spin 1s linear infinite;
+        margin: auto;
+      }
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      .warning {
+        display: inline-block;
+        background-color: red;
+        color: white;
+        padding: 10px;
+        border-radius: 5px;
+      }
     </style>
   </head>
   <body>
     <div id="app"></div>
 
     <script>
-      let isAuthenticated = localStorage.getItem("authenticated");
       const app = document.getElementById("app");
 
       const renderLogin = () => {
         app.innerHTML = `
-                    <div style="text-align: center; width: 100%; max-width: 400px; margin: auto;">
-                        <h2>Login</h2>
-                        <input id="email" type="email" placeholder="email">
-                        <input id="password" type="password" placeholder="Password">
-                        <button id="loginBtn">Login</button>
-                    </div>
-                `;
+          <div class="login-container">
+            <img src='https://fxnewsgroup.com/wp-content/uploads/2020/10/Royal-Financial-Trading-1024x403-978x400.jpg' class="logo"/>
+            <input id="email" type="email" placeholder="email">
+            <input id="password" type="password" placeholder="Password">
+            <button id="loginBtn">Login</button>
+            <div id="spinner" style="display: none; margin-top: 10px;">
+              <div class="loader"></div>
+            </div>
+            <div id="warning-message"></div>
+          </div>
+        `;
+
         document
           .getElementById("loginBtn")
           .addEventListener("click", async () => {
             let email = document.getElementById("email").value;
             let password = document.getElementById("password").value;
-            const url = "http://localhost:7001/users/login"; //"https://oneroyal.onrender.com/users/login";
+            const url = "https://oneroyal.onrender.com/users/login";
+
             if (email && password) {
-              const loginRequest = await fetch(url, {
-                headers: {
-                  "Content-Type": "application/json",
-                },
-                method: "POST",
-                body: JSON.stringify({ email: email, password: password }),
-              });
-              const responseData = await loginRequest.json();
-              const authToken = responseData.token;
-              if (authToken) {
-                localStorage.setItem("authToken", authToken);
-                renderPortal();
+              const spinner = document.getElementById("spinner");
+              spinner.style.display = "block"; // Показываем спиннер
+
+              try {
+                const loginRequest = await fetch(url, {
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  method: "POST",
+                  body: JSON.stringify({ email, password }),
+                });
+
+                const responseData = await loginRequest.json();
+                const authToken = responseData.token;
+                const userId = responseData.user_id;
+
+                if (authToken && userId) {
+                  localStorage.setItem("authToken", authToken);
+                  localStorage.setItem("userId", userId);
+                  renderPortal();
+                } else {
+                  showWarning(responseData.message);
+                }
+              } catch (error) {
+                showWarning("Something went wrong. Please try again.");
+              } finally {
+                spinner.style.display = "none"; // Скрываем спиннер после ответа
               }
             } else {
               alert("Invalid credentials");
             }
           });
+
+        const showWarning = (message) => {
+          const warningDiv = document.getElementById("warning-message");
+          warningDiv.innerHTML = `
+            <span class="warning">
+              ${message}
+            </span>
+          `;
+
+          setTimeout(() => {
+            warningDiv.innerHTML = ""; // Очищаем сообщение через 5 секунд
+          }, 5000);
+        };
       };
 
       const renderPortal = () => {
         app.innerHTML = `
-                    <nav>
-                        <span>OneRoyal</span>
-                        <span id="clientName">Client Name</span>
-                        <button id="logout">Log Out</button>
-                    </nav>
-                    <div id="app">
-                        <aside>
-                            <button id="profile">Profile</button>
-                            <button id="accounts">Accounts</button>
-                            <button id="terminal">Terminal</button>
-                        </aside>
-                        <main id="content">Welcome</main>
-                    </div>
-                `;
+  
+          <div id="app">
+            <aside>
+             <img src='https://fxnewsgroup.com/wp-content/uploads/2020/10/Royal-Financial-Trading-1024x403-978x400.jpg' class="logo"/>
+              <button id="profile">Profile</button>
+              <button id="accounts">Accounts</button>
+              <button id="terminal">Terminal</button>
+               <button id="logout">Log Out</button>
+            </aside>
+            <main id="content">Welcome</main>
+          </div>
+        `;
+
         document.getElementById("logout").addEventListener("click", () => {
-          localStorage.removeItem("authenticated");
+          localStorage.removeItem("authToken");
           renderLogin();
         });
+
         document
           .getElementById("terminal")
           .addEventListener("click", loadTradingViewChart);
@@ -164,10 +242,10 @@
           symbol: "NASDAQ:AAPL",
           interval: "D",
           timezone: "Etc/UTC",
-          theme: "light",
+          theme: "dark",
           style: "1",
           locale: "en",
-          toolbar_bg: "#f1f3f6",
+          toolbar_bg: "#1e1e1e",
           enable_publishing: false,
           hide_side_toolbar: false,
           allow_symbol_change: true,
@@ -175,17 +253,31 @@
         });
       };
 
-      const loadAccounts = () => {
-        const accounts = [
-          { id: "ACC12345", balance: 5000, currency: "USD" },
-          { id: "ACC67890", balance: 10000, currency: "EUR" },
-        ];
-        let content = "<h2>Accounts</h2><div>";
-        accounts.forEach((account) => {
-          content += `<p><strong>ID:</strong> ${account.id} | <strong>Balance:</strong> ${account.balance} ${account.currency}</p>`;
-        });
-        content += "</div>";
-        document.getElementById("content").innerHTML = content;
+      const loadAccounts = async () => {
+        const userId = localStorage.getItem("userId");
+        const url = `https://oneroyal.onrender.com/accounts/${userId}`;
+
+        try {
+          const response = await fetch(url);
+          const accounts = await response.json();
+
+          let content = `<h2>Accounts</h2>   <div id="spinner" style="display: none; margin-top: 10px;">
+              <div class="loader"></div></div><div>`;
+          accounts.forEach((account) => {
+            content += `<p><strong>ID:</strong> ${account.id} | <strong>Balance:</strong> ${account.balance} ${account.currency}</p> `;
+          });
+          content += "</div>";
+
+          // Обновляем контент и скрываем спиннер
+          document.getElementById("content").innerHTML = content;
+        } catch (error) {
+          console.error("Error fetching accounts:", error);
+          document.getElementById("content").innerHTML =
+            "<p>Error loading accounts.</p>";
+        } finally {
+          // Скрываем спиннер после завершения загрузки
+          document.getElementById("spinner").style.display = "none";
+        }
       };
 
       const loadProfile = () => {
@@ -204,7 +296,9 @@
         document.getElementById("content").innerHTML = content;
       };
 
-      isAuthenticated ? renderPortal() : renderLogin();
+      const authToken = localStorage.getItem("authToken");
+      const userId = localStorage.getItem("userId");
+      authToken && userId ? renderPortal() : renderLogin();
     </script>
   </body>
 </html>

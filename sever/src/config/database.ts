@@ -2,6 +2,7 @@ require("reflect-metadata");
 const { DataSource } = require("typeorm");
 const dotenv = require("dotenv");
 const { User } = require("../modules/users/entities/user.entity");
+const { Account } = require("../modules/accounts/entities/account.entity");
 
 dotenv.config();
 
@@ -15,7 +16,7 @@ export const AppDataSource = new DataSource({
   synchronize: true,
   logging: false,
 
-  entities: [User],
+  entities: [User, Account],
   migrations: ["src/migrations/*.ts"],
   subscribers: [],
   ssl: {
