@@ -81,8 +81,6 @@
         flex-grow: 1;
         padding: 20px;
         width: "100%";
-
-        border: solid #fff;
         text-align: center;
         font-size: x-large;
         display: flex;
@@ -103,11 +101,11 @@
         background-color: var(--button-bg);
         color: var(--button-text);
         border: none;
-        padding: 10px 10px; /* Паддинг по X */
+        padding: 10px 10px;
         cursor: pointer;
         margin: 5px;
         border-radius: 5px;
-        width: 50%; /* Растягиваем кнопку на всю ширину */
+        width: 50%;
       }
       .login-container button:hover,
       .register-container button:hover {
@@ -182,7 +180,7 @@
 
             if (username && password) {
               const spinner = document.getElementById("spinner");
-              spinner.style.display = "block"; // Показываем спиннер
+              spinner.style.display = "block";
 
               try {
                 const loginRequest = await fetch(url, {
@@ -207,14 +205,13 @@
               } catch (error) {
                 showWarning("Something went wrong. Please try again.");
               } finally {
-                spinner.style.display = "none"; // Скрываем спиннер после ответа
+                spinner.style.display = "none";
               }
             } else {
               alert("Invalid credentials");
             }
           });
 
-        // Переносим обработчик регистрации сюда
         document.getElementById("registerBtn").addEventListener("click", () => {
           renderRegisterForm();
         });
@@ -227,12 +224,11 @@
       </span>
     `;
           setTimeout(() => {
-            warningDiv.innerHTML = ""; // Очищаем сообщение через 5 секунд
+            warningDiv.innerHTML = "";
           }, 5000);
         };
       };
 
-      // Функция для отрисовки формы регистрации
       const renderRegisterForm = () => {
         app.innerHTML = `
     <div class="register-container">
@@ -301,7 +297,6 @@
           }, 5000);
         };
 
-        // Обработчик для кнопки "Back to Login"
         document
           .getElementById("backToLoginBtn")
           .addEventListener("click", () => {
@@ -382,20 +377,20 @@
     <div style="max-height: 250px; overflow-y: auto; width: 75%; display: flex; align-items: center; justify-content: start; flex-direction: column; padding: 10px;">
       <style>
         div::-webkit-scrollbar {
-          width: 8px; /* Ширина полосы прокрутки */
+          width: 8px; 
         }
 
         div::-webkit-scrollbar-track {
-          background: #f1f1f1; /* Цвет фона полосы прокрутки */
+          background: #f1f1f1; 
         }
 
         div::-webkit-scrollbar-thumb {
-          background: #fff; /* Белый цвет бегунка */
+          background: #fff; 
           border-radius: 10px;
         }
 
         div::-webkit-scrollbar-thumb:hover {
-          background: #ccc; /* Цвет бегунка при наведении */
+          background: #ccc;
         }
       </style>
   `;
@@ -421,14 +416,12 @@
 
           content += "</div>";
 
-          // Обновляем контент и скрываем спиннер
           document.getElementById("content").innerHTML = content;
         } catch (error) {
           console.error("Error fetching accounts:", error);
           document.getElementById("content").innerHTML =
             "<p>Error loading accounts.</p>";
         } finally {
-          // Скрываем спиннер после завершения загрузки
           document.getElementById("spinner").style.display = "none";
         }
       };
