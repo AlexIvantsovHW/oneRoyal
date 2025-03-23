@@ -79,13 +79,13 @@ export class UsersController {
 
   loginUser = async (req: Request, res: Response) => {
     try {
-      const { email, password } = req.body;
-      if (!email && !password) {
+      const { username, password } = req.body;
+      if (!username && !password) {
         return res
           .status(400)
-          .json({ message: "Email and password are required" });
+          .json({ message: "username and password are required" });
       }
-      const user = await this.usersService.findByEmail(email);
+      const user = await this.usersService.findByUsername(username);
 
       if (!user) {
         return res.status(404).json({ message: "User not found" });
